@@ -1,0 +1,70 @@
+substitutions:
+  device_name: on-air-light
+  device_label: ON AIR light
+  mqtt_topic: on-air-light
+
+esphome:
+  name: $device_name
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: $device_label
+
+captive_portal:
+
+mqtt:
+  broker: !secret mqtt_server
+  port: !secret mqtt_port
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  birth_message:
+    topic: home-auto/${device_name}/status
+    payload: online
+  will_message:
+    topic: home-auto/${device_name}/status
+    payload: offline
+  on_message:
+    - topic: home-auto/${device_name}/on
+      then:
+      - switch.turn_on: relay
+    - topic: home-auto/${device_name}/off
+      then:
+      - switch.turn_off: relay
+
+web_server:
+  port: 80
+
+text_sensor:
+  - platform: version
+    name: ${device_label} ESPHome Version
+  - platform: wifi_info
+    ip_address:
+      name: ${device_label} IP
+    ssid:
+      name: ${device_label} SSID
+    bssid:
+      name: ${device_label} BSSID
+
+sensor:
+  - platform: uptime
+    name: ${device_label} Uptime
+  - platform: wifi_signal
+    name: ${device_label} wifi Signal
+    update_interval: 60s
+
+switch:
+  - platform: gpio
+    id: relay
+    inverted: true
+    name: Relay
+    pin: GPIO0
+
+logger:
+
+ota:
