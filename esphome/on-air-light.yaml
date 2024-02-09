@@ -23,6 +23,7 @@ mqtt:
   port: !secret mqtt_port
   username: !secret mqtt_username
   password: !secret mqtt_password
+  topic_prefix: home-auto/${device_name}
   birth_message:
     topic: home-auto/${device_name}/status
     payload: online
